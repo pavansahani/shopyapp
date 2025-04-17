@@ -1,0 +1,166 @@
+import { useRef, useEffect } from "react";
+import { resetCatagory, setCatagory } from "../../redux/Reducer/ProductReducer";
+import { Banner1 } from "../home";
+import { productData, icons, truncktext, titleCase } from "../../assets";
+import { ProductDetail } from "../details/ProductDetail";
+import { useAuthContext } from "../../redux/AuthProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { productSelector, setProductDetails } from "../../redux/Reducer/ProductReducer";
+import { addToCart } from "../../redux/Reducer/cartReducer";
+
+const Product = () => {
+  const dispatch = useDispatch();
+  const { user } = useAuthContext();
+  const { productDetails, categoryFlag, filteredProducts } = useSelector(productSelector);
+
+  // Create a ref for the product list section
+  const productListRef = useRef(null);
+
+  // Navbar height offset (e.g., 50px)
+  const navbarHeight = 100;
+
+  // Scroll to the product list section when category is clicked
+  const handleCategoryClick = (category) => {
+    dispatch(setCatagory(category)); // Set the category in Redux
+
+    // If the product list section exists, scroll to it with offset
+    if (productListRef.current) {
+      const position = productListRef.current.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+      window.scrollTo({ top: position, behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    if (productDetails) {
+      document.body.style.overflow = "hidden"; // Disable scrolling
+    } else {
+      document.body.style.overflow = "auto"; // Re-enable scrolling
+    }
+    // Clean up the effect by resetting overflow when the component unmounts or modal closes
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [productDetails]);
+
+  return (
+    <>
+      <div className="px-2 md:px-10 py-10 w-full">
+        <div className="flex flex-col md:flex-row">
+          <div>
+            <h3 className="text-5xl text-center md:text-left uppercase font-normal text-blue-600 text-nowrap">
+              # Products
+            </h3>
+            <p className="mt-5 text-neutral-600 text-center md:text-left">
+              Home - Products
+            </p>
+            <div className="mt-5 max-w-full flex flex-col md:flex-row flex-wrap">
+              <div className="py-5">
+                <h3 className="font-bold text-neutral-800 uppercase">Categories</h3>
+                <ul className="mt-3 flex md:block flex-wrap gap-4 list-none">
+                  <li
+                    onClick={() => handleCategoryClick("men's clothing")}
+                    className="flex items-center text-neutral-900 mt-5 gap-3 cursor-pointer hover:text-blue-600"
+                  >
+                    <icons.FcBusinessman /> Men's Clothing
+                  </li>
+                  <li
+                    onClick={() => handleCategoryClick("women's clothing")}
+                    className="flex items-center text-neutral-900 mt-5 gap-3 cursor-pointer hover:text-blue-600"
+                  >
+                    <icons.FcBusinesswoman /> Women's Clothing
+                  </li>
+                  <li
+                    onClick={() => handleCategoryClick("jewelery")}
+                    className="flex items-center text-neutral-900 mt-5 gap-3 cursor-pointer hover:text-blue-600"
+                  >
+                    <icons.GiJewelCrown className="text-yellow-600" /> Jewelry
+                  </li>
+                  <li
+                    onClick={() => handleCategoryClick("electronics")}
+                    className="flex items-center text-neutral-900 mt-5 gap-3 cursor-pointer hover:text-blue-600"
+                  >
+                    <icons.FcCamcorderPro /> Electronics
+                  </li>
+                  <li
+                    onClick={() => dispatch(resetCatagory())}
+                    className="flex items-center text-neutral-900 mt-5 gap-3 cursor-pointer hover:text-blue-600"
+                  >
+                    <icons.GrPowerReset className="text-blue-600" /> Reset
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <Banner1 />
+        </div>
+        {productDetails && <ProductDetail />}
+        <div className="px-10 py-8 w-full bg-blue-50" ref={productListRef}>
+          <h2 className="text-2xl text-black font-bold">Top Products</h2>
+          <div className="mt-5 max-w-full flex justify-center md:justify-between flex-wrap gap-4">
+            {((categoryFlag && filteredProducts.length) > 0
+              ? filteredProducts
+              : productData
+            ).map((item) => (
+              <div
+                key={item.id}
+                className="px-5 md:py-5 overflow-hidden w-5/6 h-fit md:w-[280px] md:h-[360px] shadow-md hover:shadow-xl group rounded-md bg-white"
+              >
+                <div className="border-b-2 relative py-8 h-44">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="group-hover:scale-90 transition-all duration-700 max-w-24 max-h-24 md:max-w-36 md:max-h-32 m-auto cursor-pointer"
+                  />
+                  <div className="absolute top-1 -right-16 transition-all duration-1000 group-hover:-right-2 z-10">
+                    {user ? (
+                      <li
+                        onClick={() =>
+                          dispatch(addToCart({ uid: user.uid, item }))
+                        }
+                        className="list-none px-3 py-3 rounded-md text-blue-700 cursor-pointer transition-all duration-300 hover:bg-blue-700 hover:text-white shadow-md"
+                      >
+                        <icons.AiOutlineShoppingCart />
+                      </li>
+                    ) : (
+                      <li
+                        onClick={() =>
+                          dispatch(addToCart({ uid: null, item }))
+                        }
+                        className="list-none px-3 py-3 rounded-md text-blue-700 cursor-pointer transition-all duration-300 hover:bg-blue-700 hover:text-white shadow-md"
+                      >
+                        <icons.AiOutlineShoppingCart />
+                      </li>
+                    )}
+                    <li
+                      onClick={() => dispatch(setProductDetails(item))}
+                      className="list-none px-3 py-3 rounded-md text-green-700 cursor-pointer transition-all duration-300 hover:bg-green-700 hover:text-white shadow-md"
+                    >
+                      <icons.BsEye />
+                    </li>
+                    <li className="list-none px-3 py-3 rounded-md text-red-700 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-white shadow-md">
+                      <icons.AiOutlineHeart />
+                    </li>
+                  </div>
+                </div>
+                <div className="mt-3 cursor-default">
+                  <p className="text-gray-400 text-md">
+                    {titleCase(item.category)}
+                  </p>
+                  <h3 className="font-bold text-lg group-hover:text-blue-500">
+                    {truncktext(item.title)}
+                  </h3>
+                  <h4 className="mt-2 mb-2 md:mb-0 text-xl font-semibold text-blue-500 flex items-center">
+                    <icons.BsCurrencyDollar />
+                    {item.price}
+                  </h4>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Product;
