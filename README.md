@@ -56,4 +56,4 @@ To run this project locally, follow these steps:
 Join us in building! Fork our repository, make changes, and submit pull requests. We value community contributions and appreciate your help in improving our project.
 
 ## Contact
-If you have any questions or suggestions regarding this project, feel free to contact us at [abhijeetthakur7080@gmail.com](mailto:abhijeetthakur7080@gmail.com).
+If you have any questions or suggestions regarding this project, feel free to contact us at [kumarpa480443@gmail.com](mailto:kumarpa480443@gmail.com).
